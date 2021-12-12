@@ -3,7 +3,7 @@ package playermodify
 import (
 	"bytes"
 	"fmt"
-	"strings"
+	"regexp"
 	"sync"
 
 	"github.com/Tnze/go-mc/chat"
@@ -12,7 +12,9 @@ import (
 	"github.com/google/uuid"
 )
 
-const blockMsg = "[THIS MESSAGE IS BLOCKED BY PERNOD FOR SECURITY REASON]"
+const blockMsg = "[BLOCKED MESSAGE]"
+
+var filter = regexp.MustCompile(`\${(.*)}`)
 
 type Modifier struct {
 	ProfileMapping sync.Map // map[uuid.UUID]PlayerProperties
@@ -29,8 +31,8 @@ func (m *Modifier) ModifyClientboundPacket(p *packet.Packet) error {
 		if err := p.Scan(&Message, &Position, &Sender); err != nil {
 			return err
 		}
-		if strings.Contains(strings.ToLower(Message.String()), "jndi") {
-			Message = chat.Message{Text: blockMsg, Color: "red"}
+		if filter.MatchString(Message.String()) {
+			Message = chat.Text(filter.ReplaceAllString(Message.ClearString(), blockMsg))
 			*p = packet.Marshal(p.ID, Message, Position, Sender)
 		}
 	case packetid.ClientboundAddPlayer:
@@ -201,8 +203,8 @@ func (m *Modifier) ModifyServerboundPacket(p *packet.Packet) error {
 		if err := p.Scan(&Message); err != nil {
 			return err
 		}
-		if strings.Contains(strings.ToLower(string(Message)), "jndi") {
-			Message = blockMsg
+		if filter.MatchString(string(Message)) {
+			Message = packet.String(filter.ReplaceAllString(string(Message), blockMsg))
 			*p = packet.Marshal(p.ID, Message)
 		}
 	case packetid.ServerboundTeleportToEntity: // Spectate
