@@ -1,6 +1,7 @@
 package pernod
 
 import (
+	"errors"
 	"log"
 
 	"github.com/Tnze/go-mc/bot"
@@ -39,6 +40,13 @@ func (p *Proxy) AcceptPlayer(name string, id uuid.UUID, _ int32, conn *net.Conn)
 	})
 	if err := c.JoinServer(p.Destination); err != nil {
 		log.Printf("Connecting to server[%s] error: %v", p.Destination, err)
+		var disconnectErr *bot.DisconnectErr
+		if errors.As(err, &disconnectErr) {
+			_ = conn.WritePacket(packet.Marshal(
+				packetid.ClientboundDisconnect,
+				(*chat.Message)(disconnectErr),
+			))
+		}
 		return
 	}
 	defer c.Close()
