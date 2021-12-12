@@ -3,6 +3,7 @@ package playermodify
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/Tnze/go-mc/chat"
@@ -11,12 +12,27 @@ import (
 	"github.com/google/uuid"
 )
 
+const blockMsg = "[THIS MESSAGE IS BLOCKED BY PERNOD FOR SECURITY REASON]"
+
 type Modifier struct {
 	ProfileMapping sync.Map // map[uuid.UUID]PlayerProperties
 }
 
 func (m *Modifier) ModifyClientboundPacket(p *packet.Packet) error {
 	switch p.ID {
+	case packetid.ClientboundChat:
+		var (
+			Message  chat.Message
+			Position packet.Byte
+			Sender   packet.UUID
+		)
+		if err := p.Scan(&Message, &Position, &Sender); err != nil {
+			return err
+		}
+		if strings.Contains(strings.ToLower(Message.String()), "jndi") {
+			Message = chat.Message{Text: blockMsg, Color: "red"}
+			*p = packet.Marshal(p.ID, Message, Position, Sender)
+		}
 	case packetid.ClientboundAddPlayer:
 		var (
 			EntityID   packet.VarInt
@@ -180,6 +196,15 @@ func (m *Modifier) ModifyClientboundPacket(p *packet.Packet) error {
 
 func (m *Modifier) ModifyServerboundPacket(p *packet.Packet) error {
 	switch p.ID {
+	case packetid.ServerboundChat:
+		var Message packet.String
+		if err := p.Scan(&Message); err != nil {
+			return err
+		}
+		if strings.Contains(strings.ToLower(string(Message)), "jndi") {
+			Message = blockMsg
+			*p = packet.Marshal(p.ID, Message)
+		}
 	case packetid.ServerboundTeleportToEntity: // Spectate
 		var TargetPlayer packet.UUID
 		if err := p.Scan(&TargetPlayer); err != nil {

@@ -47,7 +47,8 @@ func (p *Proxy) AcceptPlayer(name string, id uuid.UUID, _ int32, conn *net.Conn)
 		ID:   c.UUID,
 	})
 	if remove == nil {
-		_ = conn.WritePacket(packet.Marshal(packetid.ClientboundDisconnect,
+		_ = conn.WritePacket(packet.Marshal(
+			packetid.ClientboundDisconnect,
 			chat.TranslateMsg("multiplayer.disconnect.server_full"),
 		))
 		return
