@@ -1,0 +1,20 @@
+MaxPlayersNum = 20
+Description = "Pernod, A Minecraft Proxy Server"
+
+# Port for offline-mode player.
+[[Listeners]]
+ListenAt = "0.0.0.0:25564"
+Destination = "dst1"
+OnlineMode = false
+Threshold = 256
+
+# Port for online-mode player.
+[[Listeners]]
+ListenAt = "0.0.0.0:25563"
+Destination = "dst1"
+OnlineMode = true
+Threshold = 256
+
+# Underlying server address
+[Destinations."dst1"]
+Address = "localhost:25565"
