@@ -2,10 +2,14 @@ package main
 
 import (
 	"flag"
+	"image"
+	"io"
 	"log"
+	"os"
+	"sync"
+
 	"pernod"
 	"pernod/playermodify"
-	"sync"
 
 	"github.com/BurntSushi/toml"
 	"github.com/Tnze/go-mc/chat"
@@ -21,9 +25,16 @@ func main() {
 	if err != nil {
 		log.Fatalf("Parse config file error: %v", err)
 	}
+	icon, err := readIconFile(config.FavIcon)
+	if err != nil {
+		log.Fatalf("Read icon file error: %v", err)
+	}
 
-	motd := chat.Text(config.Description)
-	playerList := server.NewPlayerList(ServerName, server.ProtocolVersion, config.MaxPlayersNum, &motd)
+	playerList := server.NewPlayerList(config.MaxPlayersNum)
+	serverInfo, err := server.NewPingInfo(playerList, ServerName, server.ProtocolVersion, chat.Text(config.Description), icon)
+	if err != nil {
+		log.Fatalf("Set server info error: %v", err)
+	}
 
 	var modifier playermodify.Modifier
 	// create proxy objects
@@ -45,7 +56,7 @@ func main() {
 	wg.Add(len(config.Listeners))
 	for _, listenCfg := range config.Listeners {
 		s := server.Server{
-			ListPingHandler: playerList,
+			ListPingHandler: serverInfo,
 			LoginHandler: &server.MojangLoginHandler{
 				OnlineMode: listenCfg.OnlineMode,
 				Threshold:  listenCfg.Threshold,
@@ -64,11 +75,32 @@ func main() {
 	log.Printf("All listener returned, program exit")
 }
 
+func readIconFile(path string) (icon image.Image, err error) {
+	var f io.ReadCloser
+	f, err = os.Open(path)
+	// if the file doesn't exist, return nil
+	if os.IsNotExist(err) {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+	defer func(f io.ReadCloser) {
+		err = f.Close()
+	}(f)
+
+	icon, _, err = image.Decode(f)
+	if err != nil {
+		return nil, err
+	}
+	return icon, nil
+}
+
 var configFile = flag.String("c", "config.toml", "config file name")
 
 var config struct {
 	MaxPlayersNum int
 	Description   string
+	FavIcon       string
 	Listeners     []struct {
 		ListenAt    string
 		Destination string

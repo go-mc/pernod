@@ -1,5 +1,6 @@
 MaxPlayersNum = 20
 Description = "Pernod, A Minecraft Proxy Server"
+FavIcon = "./server-icon.png"
 
 # Port for offline-mode player.
 [[Listeners]]

@@ -4,6 +4,8 @@ github.com/Tnze/go-mc v1.17.2-0.20211211093242-38cc60ea6593 h1:ZA2NGCVITgX2OjvJ8
 github.com/Tnze/go-mc v1.17.2-0.20211211093242-38cc60ea6593/go.mod h1:t0AI38F1BEmmy8/uLhr9RCOUeDbBj3oUNQH9akjzMc0=
 github.com/Tnze/go-mc v1.17.2-0.20211212072321-4e7db1e12235 h1:UMrL+PAPVZTFNo+L2n5uMEVdxjQ3YtQnfcdA02qe4GQ=
 github.com/Tnze/go-mc v1.17.2-0.20211212072321-4e7db1e12235/go.mod h1:t0AI38F1BEmmy8/uLhr9RCOUeDbBj3oUNQH9akjzMc0=
+github.com/Tnze/go-mc v1.17.2-0.20211215042430-f7bdf676cceb h1:HfyGFqFonTGirlBaL7aMg9Tk0OhKGAjubFKiU9kNnZA=
+github.com/Tnze/go-mc v1.17.2-0.20211215042430-f7bdf676cceb/go.mod h1:t0AI38F1BEmmy8/uLhr9RCOUeDbBj3oUNQH9akjzMc0=
 github.com/google/uuid v1.1.1 h1:Gkbcsh/GbpXz7lPftLA3P6TYMwjCLYm83jiFQZF/3gY=
 github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/iancoleman/strcase v0.1.3/go.mod h1:SK73tn/9oHe+/Y0h39VT4UCxmurVJkR5NA7kMEAOgSE=
