@@ -1,10 +1,13 @@
 package main
 
 import (
+	"log"
+
 	"github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/offline"
+	"github.com/Tnze/go-mc/yggdrasil/user"
 	"github.com/google/uuid"
-	"log"
+
 	"pernod"
 	"pernod/playermodify"
 )
@@ -14,7 +17,7 @@ type ModifyProxy struct {
 	*playermodify.Modifier
 }
 
-func (m *ModifyProxy) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net.Conn) {
+func (m *ModifyProxy) AcceptPlayer(name string, id uuid.UUID, key *user.PublicKey, properties []user.Property, protocol int32, conn *net.Conn) {
 	if offline.NameToUUID(name) != id {
 		pp, err := playermodify.GetPlayerProperties(id)
 		if err != nil {

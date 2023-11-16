@@ -1,9 +1,9 @@
 module pernod
 
-go 1.17
+go 1.21
 
 require (
-	github.com/BurntSushi/toml v0.4.1
-	github.com/Tnze/go-mc v1.17.2-0.20211215042430-f7bdf676cceb
-	github.com/google/uuid v1.1.1
+	github.com/BurntSushi/toml v1.3.2
+	github.com/Tnze/go-mc v1.20.1-pre1.0.20231114131026-5ae7ff14caed
+	github.com/google/uuid v1.4.0
 )

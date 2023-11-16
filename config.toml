@@ -4,14 +4,14 @@ FavIcon = "./server-icon.png"
 
 # Port for offline-mode player.
 [[Listeners]]
-ListenAt = "0.0.0.0:25564"
+ListenAt = "0.0.0.0:25565"
 Destination = "dst1"
 OnlineMode = false
 Threshold = 256
 
 # Port for online-mode player.
 [[Listeners]]
-ListenAt = "0.0.0.0:25563"
+ListenAt = "0.0.0.0:25564"
 Destination = "dst1"
 OnlineMode = true
 Threshold = 256

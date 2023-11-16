@@ -21,21 +21,8 @@ type Modifier struct {
 }
 
 func (m *Modifier) ModifyClientboundPacket(p *packet.Packet) error {
-	switch p.ID {
-	case packetid.ClientboundChat:
-		var (
-			Message  chat.Message
-			Position packet.Byte
-			Sender   packet.UUID
-		)
-		if err := p.Scan(&Message, &Position, &Sender); err != nil {
-			return err
-		}
-		if filter.MatchString(Message.String()) {
-			Message = chat.Text(filter.ReplaceAllString(Message.ClearString(), blockMsg))
-			*p = packet.Marshal(p.ID, Message, Position, Sender)
-		}
-	case packetid.ClientboundAddPlayer:
+	switch packetid.ClientboundPacketID(p.ID) {
+	case packetid.ClientboundPlayerInfoUpdate:
 		var (
 			EntityID   packet.VarInt
 			PlayerUUID packet.UUID
@@ -49,7 +36,7 @@ func (m *Modifier) ModifyClientboundPacket(p *packet.Packet) error {
 			pp := pp.(PlayerProperties)
 			*p = packet.Marshal(p.ID, EntityID, packet.UUID(pp.ID), X, Y, Z, Yaw, Pitch)
 		}
-	case packetid.ClientboundPlayerInfo:
+	case packetid.ClientboundPlayerInfoRemove:
 		r := bytes.NewReader(p.Data)
 		var (
 			Action, NumOfPlayers packet.VarInt
@@ -197,16 +184,7 @@ func (m *Modifier) ModifyClientboundPacket(p *packet.Packet) error {
 }
 
 func (m *Modifier) ModifyServerboundPacket(p *packet.Packet) error {
-	switch p.ID {
-	case packetid.ServerboundChat:
-		var Message packet.String
-		if err := p.Scan(&Message); err != nil {
-			return err
-		}
-		if filter.MatchString(string(Message)) {
-			Message = packet.String(filter.ReplaceAllString(string(Message), blockMsg))
-			*p = packet.Marshal(p.ID, Message)
-		}
+	switch packetid.ServerboundPacketID(p.ID) {
 	case packetid.ServerboundTeleportToEntity: // Spectate
 		var TargetPlayer packet.UUID
 		if err := p.Scan(&TargetPlayer); err != nil {

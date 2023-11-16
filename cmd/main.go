@@ -31,10 +31,7 @@ func main() {
 	}
 
 	playerList := server.NewPlayerList(config.MaxPlayersNum)
-	serverInfo, err := server.NewPingInfo(playerList, ServerName, server.ProtocolVersion, chat.Text(config.Description), icon)
-	if err != nil {
-		log.Fatalf("Set server info error: %v", err)
-	}
+	serverInfo := server.NewPingInfo(ServerName, server.ProtocolVersion, chat.Text(config.Description), icon)
 
 	var modifier playermodify.Modifier
 	// create proxy objects
@@ -56,7 +53,13 @@ func main() {
 	wg.Add(len(config.Listeners))
 	for _, listenCfg := range config.Listeners {
 		s := server.Server{
-			ListPingHandler: serverInfo,
+			ListPingHandler: struct {
+				*server.PlayerList
+				*server.PingInfo
+			}{
+				PlayerList: playerList,
+				PingInfo:   serverInfo,
+			},
 			LoginHandler: &server.MojangLoginHandler{
 				OnlineMode: listenCfg.OnlineMode,
 				Threshold:  listenCfg.Threshold,

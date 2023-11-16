@@ -21,6 +21,15 @@ type Proxy struct {
 	ModifyServerboundPacket func(p *packet.Packet) error
 }
 
+type Player struct {
+	conn *net.Conn
+	c    *bot.Client
+}
+
+func (p Player) SendDisconnect(reason chat.Message) {
+	p.conn.WritePacket(packet.Marshal(packetid.ClientboundDisconnect, reason))
+}
+
 func (p *Proxy) AcceptPlayer(name string, id uuid.UUID, _ int32, conn *net.Conn) {
 	c := bot.NewClient()
 	c.Auth.Name = name
@@ -50,18 +59,15 @@ func (p *Proxy) AcceptPlayer(name string, id uuid.UUID, _ int32, conn *net.Conn)
 		return
 	}
 	defer c.Close()
-	remove := p.PlayerList.TryInsert(server.PlayerSample{
+
+	player := Player{conn, c}
+	defer player.conn.Close()
+	p.PlayerList.ClientJoin(player, server.PlayerSample{
 		Name: c.Name,
 		ID:   c.UUID,
 	})
-	if remove == nil {
-		_ = conn.WritePacket(packet.Marshal(
-			packetid.ClientboundDisconnect,
-			chat.TranslateMsg("multiplayer.disconnect.server_full"),
-		))
-		return
-	}
-	defer remove()
+	defer p.PlayerList.ClientLeft(player)
+
 	go func() {
 		// forward all packet from player to server
 		var pk packet.Packet
